@@ -203,7 +203,7 @@ public class CustomerService {
      * @return true/false
      */
     private boolean passwordNotInCorrectFormat(final String password) {
-        Pattern PHONE_NUMBER_REGEX = Pattern.compile("^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\\S+$).{8,}$");
+        Pattern PHONE_NUMBER_REGEX = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\." + "[a-zA-Z0-9_+&*-]+)*@" + "(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
         Matcher matcher = PHONE_NUMBER_REGEX.matcher(password);
         return !matcher.find();
     }
