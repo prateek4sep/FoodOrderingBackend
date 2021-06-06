@@ -13,16 +13,14 @@ public class CommonValidation {
 
     @Autowired
     private CustomerDao customerDao;
-
     public CustomerAuthEntity validateCustomerAuthEntity(final String accessToken) throws AuthorizationFailedException {
         CustomerAuthEntity authEntity = customerDao.getCustomerByAccessToken(accessToken);
 
-        
+        // Throw exception if the customer is not logged in
         if (authEntity == null) {
             throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
         }
 
-        
         if (authEntity.getLogoutAt() != null) {
             throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
         }
@@ -32,5 +30,10 @@ public class CommonValidation {
             throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
         }
         return authEntity;
+    }
+
+
+    public boolean isEmptyFieldValue(final String fieldValue) {
+        return fieldValue == null || fieldValue.isEmpty();
     }
 }
