@@ -1,6 +1,7 @@
 package com.upgrad.FoodOrderingApp.service.businness;
 
 
+import com.upgrad.FoodOrderingApp.service.common.CommonValidation;
 import com.upgrad.FoodOrderingApp.service.dao.CustomerAuthDao;
 import com.upgrad.FoodOrderingApp.service.dao.CustomerDao;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
@@ -28,6 +29,9 @@ public class CustomerService {
 
     @Autowired private PasswordCryptographyProvider passwordCryptographyProvider;
 
+
+    @Autowired
+    private CommonValidation commonValidation;
     /**
      * This service method assigns a UUID, sets an encrypted password and salt for the user signing up.
      * This method handle also exceptions in case of a duplicate username or if the user exists in the DB.
@@ -217,4 +221,10 @@ public class CustomerService {
         if(username=="" || password=="") return true;
         else return false;
     }
+
+    public CustomerEntity getCustomer(final String accessToken) throws AuthorizationFailedException {
+        final CustomerAuthEntity authEntity = commonValidation.validateCustomerAuthEntity(accessToken);
+        return authEntity.getCustomer();
+    }
 }
+
