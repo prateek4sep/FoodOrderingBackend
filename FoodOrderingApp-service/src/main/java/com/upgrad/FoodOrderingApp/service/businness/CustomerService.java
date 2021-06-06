@@ -159,13 +159,6 @@ public class CustomerService {
         return userDao.updateCustomer(customerEntity);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public CustomerEntity getCustomer(final String authorization) throws AuthorizationFailedException {
-        validateAccessToken(authorization);
-        CustomerAuthEntity customerAuthEntity = userDao.getCustomerByAccessToken(authorization);
-        return customerAuthEntity.getCustomer();
-    }
-
     public void validateAccessToken(final String authorization) throws AuthorizationFailedException{
         CustomerAuthEntity customerAuthEntity = userDao.getCustomerByAccessToken(authorization);
 
@@ -260,6 +253,7 @@ public class CustomerService {
         else return false;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public CustomerEntity getCustomer(final String accessToken) throws AuthorizationFailedException {
         final CustomerAuthEntity authEntity = commonValidation.validateCustomerAuthEntity(accessToken);
         return authEntity.getCustomer();
