@@ -120,7 +120,39 @@ public class CustomerController {
         updateCustomerResponse.setLastName(updatedCustomerEntity.getLastName());
         updateCustomerResponse.status("CUSTOMER DETAILS UPDATED SUCCESSFULLY");
 
-        return new ResponseEntity<UpdateCustomerResponse>(updateCustomerResponse, HttpStatus.OK);
+        return new ResponseEntity<>(updateCustomerResponse, HttpStatus.OK);
+    }
+
+    @RequestMapping(
+            method = RequestMethod.PUT,
+            path = "/customer/password",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UpdatePasswordResponse> changePassword(
+            @RequestHeader("authorization") final String bearerToken,
+            @RequestBody(required = true) final UpdatePasswordRequest updatePasswordRequest)
+            throws UpdateCustomerException, AuthorizationFailedException {
+
+        String oldPassword = updatePasswordRequest.getOldPassword();
+        String newPassword = updatePasswordRequest.getNewPassword();
+
+        if (oldPassword == null || newPassword == null || oldPassword.isEmpty() || newPassword.isEmpty()) {
+            throw new UpdateCustomerException("UCR-003", "No field should be empty");
+        }
+
+        String accessToken;
+        try {
+            accessToken = bearerToken.split("Bearer ")[1];
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+        }
+        CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+
+        CustomerEntity updatedCustomerEntity = customerService.updateCustomerPassword(oldPassword, newPassword, customerEntity);
+
+        UpdatePasswordResponse updatePasswordResponse = new UpdatePasswordResponse().id(updatedCustomerEntity.getUuid())
+                            .status("CUSTOMER PASSWORD UPDATED SUCCESSFULLY");
+
+        return new ResponseEntity<>(updatePasswordResponse, HttpStatus.OK);
     }
 
     /**

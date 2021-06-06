@@ -138,6 +138,24 @@ public class CustomerService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
+    public CustomerEntity updateCustomerPassword(
+            final String oldPassword, final String newPassword, final CustomerEntity customerEntity)
+            throws UpdateCustomerException {
+        if (passwordNotInCorrectFormat(newPassword))
+            throw new UpdateCustomerException("UCR-001", "Weak password!");
+
+        String oldEncryptedPassword = PasswordCryptographyProvider.encrypt(oldPassword, customerEntity.getSalt());
+        if (!oldEncryptedPassword.equals(customerEntity.getPassword())) {
+            throw new UpdateCustomerException("UCR-004", "Incorrect old password!");
+        }
+
+        String[] encryptedText = passwordCryptographyProvider.encrypt(newPassword);
+        customerEntity.setSalt(encryptedText[0]);
+        customerEntity.setPassword(encryptedText[1]);
+        return userDao.updateCustomer(customerEntity);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
     public CustomerEntity getCustomer(final String authorization) throws AuthorizationFailedException {
         validateAccessToken(authorization);
         CustomerAuthEntity customerAuthEntity = userDao.getCustomerByAccessToken(authorization);
