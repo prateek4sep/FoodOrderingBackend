@@ -46,4 +46,31 @@ public class RestExceptionHandler {
         return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    public ResponseEntity<ErrorResponse> restaurantNotFoundException(
+            final RestaurantNotFoundException excp, final WebRequest request) {
+        return new ResponseEntity<>(new ErrorResponse().code(excp.getCode())
+                .message(excp.getErrorMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ItemNotFoundException.class)
+    public ResponseEntity<ErrorResponse> itemNotFoundException(
+            final ItemNotFoundException excp, final WebRequest request) {
+        return new ResponseEntity<>(new ErrorResponse().code(excp.getCode())
+                .message(excp.getErrorMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<ErrorResponse> categoryNotFoundException(
+            final CategoryNotFoundException excp, final WebRequest request) {
+        return new ResponseEntity<>(new ErrorResponse().code(excp.getCode())
+                .message(excp.getErrorMessage()), HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(InvalidRatingException.class)
+    public ResponseEntity<ErrorResponse> invalidRatingException(
+            final InvalidRatingException excp, final WebRequest request) {
+        return new ResponseEntity<>(new ErrorResponse().code(excp.getCode())
+                .message(excp.getErrorMessage()), HttpStatus.BAD_REQUEST);
+    }
+
 }

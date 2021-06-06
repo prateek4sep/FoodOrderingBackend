@@ -10,6 +10,14 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "restaurant_category")
+@NamedQueries(
+        {
+                @NamedQuery(name = "categoriesByRestaurant",
+                        query = "select rc from RestaurantCategoryEntity rc where rc.restaurant.uuid = :restaurantUuid order by rc.category.categoryName"),
+                @NamedQuery(name = "restaurantsByCategory",
+                        query = "select rc from RestaurantCategoryEntity rc where rc.category.uuid =:categoryUuid order by  rc.restaurant.restaurantName")
+        }
+)
 public class RestaurantCategoryEntity {
     @Id
     @Column(name = "ID")

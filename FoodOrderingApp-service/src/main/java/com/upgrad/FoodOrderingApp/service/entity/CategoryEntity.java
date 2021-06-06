@@ -13,6 +13,14 @@ import java.util.List;
 
 @Entity
 @Table(name = "category")
+@NamedQueries(
+        {
+                @NamedQuery(name = "allCategoriesOrderedByName",
+                        query = "select c from CategoryEntity c order by c.categoryName"),
+                @NamedQuery(name = "categoryByUuid",
+                        query = "select c from CategoryEntity c where c.uuid = :categoryUuid")
+        }
+)
 public class CategoryEntity implements Serializable {
 
     @Id
