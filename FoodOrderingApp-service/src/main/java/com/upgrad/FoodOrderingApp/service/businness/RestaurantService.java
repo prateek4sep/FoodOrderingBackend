@@ -34,7 +34,7 @@ public class RestaurantService {
    *
    * @return restaurant list
    */
-  public List<RestaurantEntity> getAllRestaurants() {
+  public List<RestaurantEntity> restaurantsByRating() {
     return restaurantDao.getAllRestaurants();
   }
 
