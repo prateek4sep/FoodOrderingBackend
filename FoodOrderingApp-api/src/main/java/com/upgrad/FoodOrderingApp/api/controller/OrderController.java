@@ -34,6 +34,8 @@ public class OrderController {
 
     @Autowired private ItemService itemService;
 
+    @Autowired private CommonValidation commonValidation;
+
     /**
      * This API endpoint gets coupon details by coupon name
      *
@@ -53,7 +55,7 @@ public class OrderController {
             @PathVariable("coupon_name") final String couponName)
             throws AuthorizationFailedException, CouponNotFoundException, AuthenticationFailedException {
 
-        String accessToken = getTokenFromAuthorization(authorization);
+        String accessToken = commonValidation.getAccessTokenFromBearer(authorization);
 
         customerService.getCustomer(accessToken);
 
@@ -83,7 +85,7 @@ public class OrderController {
             @RequestHeader("authorization") final String authorization)
             throws AuthorizationFailedException, AuthenticationFailedException {
 
-        String accessToken = getTokenFromAuthorization(authorization);
+        String accessToken = commonValidation.getAccessTokenFromBearer(authorization);
 
         // Identify customer from the access token.
         CustomerEntity customerEntity = customerService.getCustomer(accessToken);
@@ -136,7 +138,7 @@ public class OrderController {
             @RequestBody(required = true) SaveOrderRequest saveOrderRequest)
             throws AuthorizationFailedException, CouponNotFoundException, AddressNotFoundException,
             PaymentMethodNotFoundException, RestaurantNotFoundException, ItemNotFoundException, AuthenticationFailedException {
-        String accessToken = getTokenFromAuthorization(authorization);
+        String accessToken = commonValidation.getAccessTokenFromBearer(authorization);
 
         // Identify customer from the access token.
         CustomerEntity customerEntity = customerService.getCustomer(accessToken);
@@ -253,13 +255,5 @@ public class OrderController {
             responseList.add(response);
         }
         return responseList;
-    }
-    public static String getTokenFromAuthorization(String authorization)
-            throws AuthorizationFailedException {
-        String[] authParts = authorization.split("Bearer ");
-        if (authParts.length != 2) {
-            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
-        }
-        return authParts[1];
     }
 }
