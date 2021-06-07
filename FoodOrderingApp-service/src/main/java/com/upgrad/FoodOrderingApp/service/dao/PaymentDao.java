@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
@@ -16,5 +17,13 @@ public class PaymentDao{
 
     public List<PaymentEntity> getPayments(){
         return entityManager.createNamedQuery("getPayments",PaymentEntity.class).getResultList();
+    }
+
+    public PaymentEntity getPaymentByUUID(String UUID){
+        try {
+            return entityManager.createNamedQuery("getPaymentByUUID",PaymentEntity.class).setParameter("UUID",UUID).getSingleResult();
+        }catch (NoResultException nre){
+            return null;
+        }
     }
 }

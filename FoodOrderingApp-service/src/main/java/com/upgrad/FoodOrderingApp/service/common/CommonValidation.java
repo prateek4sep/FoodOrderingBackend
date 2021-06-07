@@ -1,5 +1,6 @@
 package com.upgrad.FoodOrderingApp.service.common;
 
+import com.upgrad.FoodOrderingApp.service.dao.CustomerAuthDao;
 import com.upgrad.FoodOrderingApp.service.dao.CustomerDao;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
@@ -12,9 +13,9 @@ import java.time.ZonedDateTime;
 public class CommonValidation {
 
     @Autowired
-    private CustomerDao customerDao;
+    private CustomerAuthDao customerAuthDao;
     public CustomerAuthEntity validateCustomerAuthEntity(final String accessToken) throws AuthorizationFailedException {
-        CustomerAuthEntity authEntity = customerDao.getCustomerByAccessToken(accessToken);
+        CustomerAuthEntity authEntity = customerAuthDao.getUserAuthByToken(accessToken);
 
         // Throw exception if the customer is not logged in
         if (authEntity == null) {

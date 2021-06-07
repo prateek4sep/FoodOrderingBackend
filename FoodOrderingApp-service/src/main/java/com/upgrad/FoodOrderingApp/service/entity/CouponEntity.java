@@ -12,24 +12,45 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "coupon")
+@NamedQueries({
+        @NamedQuery(
+                name = "couponByName",
+                query = "select c from CouponEntity c where c.couponName=:couponName"),
+        @NamedQuery(
+                name = "couponByUUID",
+                query = "select c from CouponEntity c where c.uuid=:couponUUID")
+})
 public class CouponEntity implements Serializable {
+
     @Id
-    @Column(name = "ID")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "UUID")
+    @Column(name = "uuid", unique = true)
     @NotNull
     @Size(max = 200)
     private String uuid;
 
-    @Column(name = "COUPON_NAME")
+    @Column(name = "coupon_name")
+    @NotNull
     @Size(max = 255)
     private String couponName;
 
-    @Column(name = "PERCENT")
+    @Column(name = "percent")
     @NotNull
     private Integer percent;
+
+    public CouponEntity() {}
+
+    public CouponEntity(
+            @NotNull @Size(max = 200) String uuid,
+            @NotNull @Size(max = 255) String couponName,
+            @NotNull Integer percent) {
+        this.uuid = uuid;
+        this.couponName = couponName;
+        this.percent = percent;
+    }
 
     public Integer getId() {
         return id;
@@ -51,8 +72,8 @@ public class CouponEntity implements Serializable {
         return couponName;
     }
 
-    public void setCouponName(String coupon_name) {
-        this.couponName = coupon_name;
+    public void setCouponName(String couponName) {
+        this.couponName = couponName;
     }
 
     public Integer getPercent() {

@@ -60,9 +60,6 @@ public class ItemEntity implements Serializable {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "items")
     private List<RestaurantEntity> restaurants;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "items")
-    private List<OrderEntity> orders;
-
     public Integer getId() {
         return id;
     }
@@ -117,14 +114,6 @@ public class ItemEntity implements Serializable {
 
     public void setRestaurants(List<RestaurantEntity> restaurants) {
         this.restaurants = restaurants;
-    }
-
-    public List<OrderEntity> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<OrderEntity> orders) {
-        this.orders = orders;
     }
 
     @Override

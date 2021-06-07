@@ -73,4 +73,19 @@ public class RestExceptionHandler {
                 .message(excp.getErrorMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(CouponNotFoundException.class)
+    public ResponseEntity<ErrorResponse> invalidRatingException(
+            final CouponNotFoundException excp, final WebRequest request) {
+        return new ResponseEntity<>(new ErrorResponse().code(excp.getCode())
+                .message(excp.getErrorMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PaymentMethodNotFoundException.class)
+    public ResponseEntity<ErrorResponse> paymentMethodNotFound(
+            final PaymentMethodNotFoundException excp, WebRequest request
+    ){
+        return new ResponseEntity<>(new ErrorResponse().code(excp.getCode())
+                .message(excp.getErrorMessage()), HttpStatus.NOT_FOUND);
+    }
+
 }

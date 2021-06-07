@@ -96,7 +96,7 @@ public class CustomerController {
     public ResponseEntity<UpdateCustomerResponse> update(
     @RequestHeader("authorization") final String bearerToken,
     @RequestBody(required = true) final UpdateCustomerRequest updateCustomerRequest)
-            throws AuthorizationFailedException, UpdateCustomerException {
+            throws AuthorizationFailedException, UpdateCustomerException, AuthenticationFailedException {
         if(updateCustomerRequest.getFirstName()==null || updateCustomerRequest.getFirstName().isEmpty()){
             throw new UpdateCustomerException("UCR-002","First name field should not be empty");
         }
@@ -130,7 +130,7 @@ public class CustomerController {
     public ResponseEntity<UpdatePasswordResponse> changePassword(
             @RequestHeader("authorization") final String bearerToken,
             @RequestBody(required = true) final UpdatePasswordRequest updatePasswordRequest)
-            throws UpdateCustomerException, AuthorizationFailedException {
+            throws UpdateCustomerException, AuthorizationFailedException, AuthenticationFailedException {
 
         String oldPassword = updatePasswordRequest.getOldPassword();
         String newPassword = updatePasswordRequest.getNewPassword();

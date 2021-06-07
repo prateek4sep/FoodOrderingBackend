@@ -6,10 +6,7 @@ import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.businness.ItemService;
 import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
 import com.upgrad.FoodOrderingApp.service.entity.*;
-import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
-import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
-import com.upgrad.FoodOrderingApp.service.exception.InvalidRatingException;
-import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -140,7 +137,7 @@ public class RestaurantController {
           @RequestHeader("authorization") final String authorization,
           @PathVariable("restaurant_id") final String restaurantId,
           @RequestParam("customer_rating") final Double customerRating)
-          throws AuthorizationFailedException, RestaurantNotFoundException, InvalidRatingException {
+          throws AuthorizationFailedException, RestaurantNotFoundException, InvalidRatingException, AuthenticationFailedException {
 
     final String accessToken = authorization.split("Bearer ")[1];
     final CustomerEntity customerEntity = customerService.getCustomer(accessToken);
