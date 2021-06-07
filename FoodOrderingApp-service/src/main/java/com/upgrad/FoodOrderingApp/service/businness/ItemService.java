@@ -20,8 +20,10 @@ public class ItemService {
     private CategoryDao categoryDao;
 
     /**
-     * Fetch item details based on item uuid
-     *
+     * Fetch Item By Item UuID
+     * @param itemUuid
+     * @return ItemEntity
+     * @throws ItemNotFoundException
      */
     public ItemEntity getItemById(final String itemUuid) throws ItemNotFoundException {
         final ItemEntity itemEntity = itemDao.getItemById(itemUuid);
@@ -34,16 +36,19 @@ public class ItemService {
     }
 
     /**
-     * Fetch list of item details restaurantUuid and categoryUuid
-     *
+     * Fetch All Items by Category and Restaurant UuID
+     * @param restaurantUuid
+     * @param categoryUuid
+     * @return List of ItemEntity
      */
     public List<ItemEntity> getItemsByCategoryAndRestaurant(final String restaurantUuid, final String categoryUuid) {
         return itemDao.getItemsByCategoryAndRestaurant(restaurantUuid, categoryUuid);
     }
 
     /**
-     * Fetch top five items of that restaurant based on the number of times that item was ordered
-     *
+     * Fetch All Items By Popularity
+     * @param restaurantEntity
+     * @return List of ItemEntity
      */
     public List<ItemEntity> getItemsByPopularity(final RestaurantEntity restaurantEntity) {
         return itemDao.getItemsByPopularity(restaurantEntity.getId());

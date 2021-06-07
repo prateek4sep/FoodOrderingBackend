@@ -15,12 +15,20 @@ public class CategoryDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+    /**
+     * Fetch all Categories and Order it by its Name
+     * @return List of CategoryEntity
+     */
     public List<CategoryEntity> getAllCategoriesOrderedByName() {
         return entityManager.createNamedQuery("allCategoriesOrderedByName", CategoryEntity.class)
                 .getResultList();
     }
 
-
+    /**
+     * Fetch Category By Given CategoryUuID
+     * @param categoryUuid
+     * @return CategoryEntity
+     */
     public CategoryEntity getCategoryById(final String categoryUuid) {
         try {
             return entityManager.createNamedQuery("categoryByUuid", CategoryEntity.class)
@@ -31,6 +39,11 @@ public class CategoryDao {
         }
     }
 
+    /**
+     * Fetch Category by given RestaurantUuID
+     * @param restaurantUuid
+     * @return List of RestaurantCategoryEntity
+     */
 
     public List<RestaurantCategoryEntity> getCategoriesByRestaurant(final String restaurantUuid) {
         return entityManager.createNamedQuery("categoriesByRestaurant", RestaurantCategoryEntity.class)
