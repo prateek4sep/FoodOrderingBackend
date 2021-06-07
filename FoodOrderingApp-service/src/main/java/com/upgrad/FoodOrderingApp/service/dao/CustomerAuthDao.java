@@ -10,7 +10,22 @@ import javax.persistence.PersistenceContext;
 public class CustomerAuthDao {
 
     @PersistenceContext private EntityManager entityManager;
-
+    /**
+     * Takes access token as an argument and provides the authentication.
+     *
+     * @param accessToken : Access Token for authentication
+     * @return User Auth Details
+     */
+    public CustomerAuthEntity getUserAuthByToken(final String accessToken) {
+        try {
+            return entityManager
+                    .createNamedQuery("customerByAccessToken", CustomerAuthEntity.class)
+                    .setParameter("accessToken", accessToken)
+                    .getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
     /**
      * Persists userAuthEntity in DB.
      *

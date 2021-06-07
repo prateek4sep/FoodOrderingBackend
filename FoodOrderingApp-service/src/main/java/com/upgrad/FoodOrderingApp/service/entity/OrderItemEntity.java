@@ -12,29 +12,41 @@ import java.io.Serializable;
 @Entity
 @Table(name = "order_item")
 public class OrderItemEntity implements Serializable {
-
     @Id
-    @Column(name = "ID")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
     @NotNull
-    @JoinColumn(name = "ORDER_ID")
+    @ManyToOne
+    @JoinColumn(name = "order_id")
     private OrderEntity order;
 
-    @ManyToOne
     @NotNull
-    @JoinColumn(name = "ITEM_ID")
+    @ManyToOne
+    @JoinColumn(name = "item_id")
     private ItemEntity item;
 
-    @Column(name = "QUANTITY")
     @NotNull
+    @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "PRICE")
     @NotNull
+    @Column(name = "price")
     private Integer price;
+
+    public OrderItemEntity() {}
+
+    public OrderItemEntity(
+            @NotNull OrderEntity order,
+            @NotNull ItemEntity item,
+            @NotNull Integer quantity,
+            @NotNull Integer price) {
+        this.order = order;
+        this.item = item;
+        this.quantity = quantity;
+        this.price = price;
+    }
 
     public Integer getId() {
         return id;
@@ -64,8 +76,8 @@ public class OrderItemEntity implements Serializable {
         return quantity;
     }
 
-    public void setQuantity(Integer quanity) {
-        this.quantity = quanity;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
     public Integer getPrice() {
