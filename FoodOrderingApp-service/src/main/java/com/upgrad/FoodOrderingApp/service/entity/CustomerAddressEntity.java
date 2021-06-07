@@ -9,9 +9,16 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 
-
 @Entity
 @Table(name = "customer_address")
+@NamedQueries({
+        @NamedQuery(
+                name = "customerAddressByCustomer",
+                query = "select ca FROM CustomerAddressEntity ca where ca.customer = :customer"),
+        @NamedQuery(
+                name = "customerAddressByAddress",
+                query = "select ca from CustomerAddressEntity ca where ca.address = :address")
+})
 public class CustomerAddressEntity {
     @Id
     @Column(name = "ID")
