@@ -9,6 +9,7 @@ import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
+import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -61,7 +62,7 @@ public class CustomerService {
                     "SGR-003", "Invalid contact number!");
         }
 
-        if (passwordNotInCorrectFormat(customerEntity.getContactNumber())) {
+        if (passwordNotInCorrectFormat(customerEntity.getPassword())) {
             throw new SignUpRestrictedException(
                     "SGR-004", "Weak password!");
         }
@@ -128,6 +129,39 @@ public class CustomerService {
     public CustomerAuthEntity logout(final String authorization) throws AuthorizationFailedException {
         CustomerAuthEntity customerAuthEntity = userDao.getCustomerByAccessToken(authorization);
 
+        customerAuthEntity.setLogoutAt(ZonedDateTime.now());
+        userDao.updateCustomerAuth(customerAuthEntity);
+
+        return customerAuthEntity;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public CustomerEntity updateCustomer(final CustomerEntity customerEntity) throws UpdateCustomerException {
+        userDao.updateCustomer(customerEntity);
+        return customerEntity;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public CustomerEntity updateCustomerPassword(
+            final String oldPassword, final String newPassword, final CustomerEntity customerEntity)
+            throws UpdateCustomerException {
+        if (passwordNotInCorrectFormat(newPassword))
+            throw new UpdateCustomerException("UCR-001", "Weak password!");
+
+        String oldEncryptedPassword = PasswordCryptographyProvider.encrypt(oldPassword, customerEntity.getSalt());
+        if (!oldEncryptedPassword.equals(customerEntity.getPassword())) {
+            throw new UpdateCustomerException("UCR-004", "Incorrect old password!");
+        }
+
+        String[] encryptedText = passwordCryptographyProvider.encrypt(newPassword);
+        customerEntity.setSalt(encryptedText[0]);
+        customerEntity.setPassword(encryptedText[1]);
+        return userDao.updateCustomer(customerEntity);
+    }
+
+    public void validateAccessToken(final String authorization) throws AuthorizationFailedException{
+        CustomerAuthEntity customerAuthEntity = userDao.getCustomerByAccessToken(authorization);
+
         if (customerAuthEntity == null) {
             throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
         }
@@ -146,10 +180,6 @@ public class CustomerService {
 
         }
 
-        customerAuthEntity.setLogoutAt(ZonedDateTime.now());
-        userDao.updateCustomerAuth(customerAuthEntity);
-
-        return customerAuthEntity;
     }
 
     /**
@@ -169,8 +199,9 @@ public class CustomerService {
      * @return true/false
      */
     private boolean emailNotInCorrectFormat(final String email) {
+        if(email == null) return true;
         Pattern VALID_EMAIL_ADDRESS_REGEX =
-                Pattern.compile("^[A-Za-z0-9]+@[A-Za-z0-9]+\\.[A-Za-z0-9]$");
+                Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\." + "[a-zA-Z0-9_+&*-]+)*@" + "(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(email);
         return !matcher.find();
     }
@@ -181,8 +212,8 @@ public class CustomerService {
      * @return
      */
     private boolean emptyFields(CustomerEntity customerEntity){
-        if (customerEntity.getFirstName() == null || customerEntity.getEmail() == null || customerEntity.getContactNumber() == null
-                || customerEntity.getPassword() == null) {
+        if (customerEntity.getFirstName().isEmpty() || customerEntity.getEmail().isEmpty() || customerEntity.getContactNumber().isEmpty()
+                || customerEntity.getPassword().isEmpty()) {
             return true;
         } else
             return false;
@@ -207,8 +238,8 @@ public class CustomerService {
      * @return true/false
      */
     private boolean passwordNotInCorrectFormat(final String password) {
-        Pattern PHONE_NUMBER_REGEX = Pattern.compile("^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\\S+$).{8,}$");
-        Matcher matcher = PHONE_NUMBER_REGEX.matcher(password);
+        Pattern PASSWORD_REGEX = Pattern.compile("^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\\S+$).{8,}$");
+        Matcher matcher = PASSWORD_REGEX.matcher(password);
         return !matcher.find();
     }
 
@@ -222,6 +253,7 @@ public class CustomerService {
         else return false;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public CustomerEntity getCustomer(final String accessToken) throws AuthorizationFailedException {
         final CustomerAuthEntity authEntity = commonValidation.validateCustomerAuthEntity(accessToken);
         return authEntity.getCustomer();

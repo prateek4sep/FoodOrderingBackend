@@ -1,15 +1,13 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
-import com.upgrad.FoodOrderingApp.api.model.LoginResponse;
-import com.upgrad.FoodOrderingApp.api.model.LogoutResponse;
-import com.upgrad.FoodOrderingApp.api.model.SignupCustomerRequest;
-import com.upgrad.FoodOrderingApp.api.model.SignupCustomerResponse;
+import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
+import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -82,6 +80,79 @@ public class CustomerController {
         loginResponse.setMessage("LOGGED IN SUCCESSFULLY");
 
         return new ResponseEntity<>(loginResponse, headers, HttpStatus.OK);
+    }
+
+    /**
+     * This method takes an bearerToken to validate and updates the user .
+     *
+     * @param bearerToken Token used for authenticating the user.
+     * @return UUID, First and Last Name of the user.
+     * @throws AuthorizationFailedException if the bearerToken is invalid.
+     */
+    @RequestMapping(
+            method = RequestMethod.PUT,
+            path = "/customer",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UpdateCustomerResponse> update(
+    @RequestHeader("authorization") final String bearerToken,
+    @RequestBody(required = true) final UpdateCustomerRequest updateCustomerRequest)
+            throws AuthorizationFailedException, UpdateCustomerException {
+        if(updateCustomerRequest.getFirstName()==null || updateCustomerRequest.getFirstName().isEmpty()){
+            throw new UpdateCustomerException("UCR-002","First name field should not be empty");
+        }
+
+        String accessToken;
+        try {
+            accessToken = bearerToken.split("Bearer ")[1];
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+        }
+
+        CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+        customerEntity.setFirstName(updateCustomerRequest.getFirstName());
+        customerEntity.setLastName(updateCustomerRequest.getLastName());
+
+        CustomerEntity updatedCustomerEntity = customerService.updateCustomer(customerEntity);
+
+        UpdateCustomerResponse updateCustomerResponse = new UpdateCustomerResponse();
+        updateCustomerResponse.setId(updatedCustomerEntity.getUuid());
+        updateCustomerResponse.setFirstName(updatedCustomerEntity.getFirstName());
+        updateCustomerResponse.setLastName(updatedCustomerEntity.getLastName());
+        updateCustomerResponse.status("CUSTOMER DETAILS UPDATED SUCCESSFULLY");
+
+        return new ResponseEntity<>(updateCustomerResponse, HttpStatus.OK);
+    }
+
+    @RequestMapping(
+            method = RequestMethod.PUT,
+            path = "/customer/password",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UpdatePasswordResponse> changePassword(
+            @RequestHeader("authorization") final String bearerToken,
+            @RequestBody(required = true) final UpdatePasswordRequest updatePasswordRequest)
+            throws UpdateCustomerException, AuthorizationFailedException {
+
+        String oldPassword = updatePasswordRequest.getOldPassword();
+        String newPassword = updatePasswordRequest.getNewPassword();
+
+        if (oldPassword == null || newPassword == null || oldPassword.isEmpty() || newPassword.isEmpty()) {
+            throw new UpdateCustomerException("UCR-003", "No field should be empty");
+        }
+
+        String accessToken;
+        try {
+            accessToken = bearerToken.split("Bearer ")[1];
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+        }
+        CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+
+        CustomerEntity updatedCustomerEntity = customerService.updateCustomerPassword(oldPassword, newPassword, customerEntity);
+
+        UpdatePasswordResponse updatePasswordResponse = new UpdatePasswordResponse().id(updatedCustomerEntity.getUuid())
+                            .status("CUSTOMER PASSWORD UPDATED SUCCESSFULLY");
+
+        return new ResponseEntity<>(updatePasswordResponse, HttpStatus.OK);
     }
 
     /**

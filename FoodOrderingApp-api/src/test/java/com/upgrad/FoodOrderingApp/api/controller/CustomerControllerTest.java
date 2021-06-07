@@ -51,24 +51,26 @@ public class CustomerControllerTest {
         mockMvc
                 .perform(post("/customer/signup")
                         .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-                        .content("{\"first_name\":\"first\", \"last_name\":\"last\", \"email_address\":\"abc@email.com\", \"contact_number\":\"9090909090\", \"password\":\"qawsedrf@123\"}"))
+                        .content("{\"first_name\":\"first\", \"last_name\":\"last\", emp\"email_address\":\"abc@email.com\", \"contact_number\":\"9090909090\", \"password\":\"qawsedrf@123\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").value(customerId));
         verify(mockCustomerService, times(1)).saveCustomer(any());
     }
-/*
+
     //This test case passes when you have handled the exception of trying to signup but the request field is empty.
     @Test
     public void shouldNotSignUpForEmptyRequest() throws Exception {
+        when(mockCustomerService.saveCustomer(any()))
+                .thenThrow(new SignUpRestrictedException("SGR-005", "Except last name all fields should be filled"));
         mockMvc
                 .perform(post("/customer/signup")
                         .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                         .content("{\"first_name\":\"first\", \"last_name\":\"last\", \"email_address\":\"\", \"contact_number\":\"9090909090\", \"password\":\"qawsedrf@123\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value("SGR-005"));
-        verify(mockCustomerService, times(0)).saveCustomer(any());
+        verify(mockCustomerService, times(1)).saveCustomer(any());
     }
-*/
+
     //This test case passes when you have handled the exception of trying to signup with invalid email-id.
     @Test
     public void shouldNotSignUpForInvalidEmailId() throws Exception {
@@ -263,7 +265,7 @@ public class CustomerControllerTest {
     }
 
     // ----------------------------- PUT /customer --------------------------------
-/*
+
     //This test case passes when you are able to update customer details successfully.
     @Test
     public void shouldUpdateCustomerDetails() throws Exception {
@@ -297,7 +299,7 @@ public class CustomerControllerTest {
         mockMvc
                 .perform(put("/customer")
                         .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-                        .header("authorization", "auth")
+                        .header("authorization", "Bearer auth")
                         .content("{\"first_name\":\"\", \"last_name\":\"last\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value("UCR-002"));
@@ -482,5 +484,4 @@ public class CustomerControllerTest {
         verify(mockCustomerService, times(1)).getCustomer("auth");
         verify(mockCustomerService, times(1)).updateCustomerPassword("oldPwd", "newPwd", customerEntity);
     }
-*/
 }
