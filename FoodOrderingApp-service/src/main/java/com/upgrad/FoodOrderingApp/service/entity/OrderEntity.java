@@ -14,7 +14,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "orders")
-
+@NamedQueries({
+        @NamedQuery(
+                name = "allOrdersByAddress",
+                query = "select o from OrderEntity o where o.address=:address")
+})
 public class OrderEntity implements Serializable {
 
     @Id

@@ -2,12 +2,11 @@ package com.upgrad.FoodOrderingApp.service.businness;
 
 import com.upgrad.FoodOrderingApp.service.dao.AddressDao;
 import com.upgrad.FoodOrderingApp.service.dao.CustomerAddressDao;
+import com.upgrad.FoodOrderingApp.service.dao.OrderDao;
 import com.upgrad.FoodOrderingApp.service.dao.StateDao;
-import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
-import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
-import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
-import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
+import com.upgrad.FoodOrderingApp.service.entity.*;
 import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SaveAddressException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +28,9 @@ public class AddressService {
 
     @Autowired
     private CustomerAddressDao customerAddressDao;
+
+    @Autowired
+    private OrderDao orderDao;
 
     @Transactional(propagation = Propagation.REQUIRED)
     public AddressEntity saveAddress(final AddressEntity addressEntity, final CustomerEntity customerEntity) throws SaveAddressException {
@@ -64,11 +66,19 @@ public class AddressService {
         return addressEntityList;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public AddressEntity deleteAddress(final AddressEntity addressEntity) {
+        final List<OrderEntity> orders = orderDao.getAllOrdersByAddress(addressEntity);
+        if (orders == null || orders.isEmpty()) {
+            return addressDao.deleteAddress(addressEntity);
+        }
+        addressEntity.setActive(0);
+        return addressDao.updateAddress(addressEntity);
+    }
 
     public List<StateEntity> getAllStates() {
         return stateDao.getAllStates();
     }
-
 
     public StateEntity getStateByUUID(final String stateUuid) throws AddressNotFoundException {
         if (stateDao.getStateByUUID(stateUuid) == null) {
@@ -77,13 +87,30 @@ public class AddressService {
         return stateDao.getStateByUUID(stateUuid);
     }
 
+    public AddressEntity getAddressByUUID(final String addressId, final CustomerEntity customerEntity)
+            throws AuthorizationFailedException, AddressNotFoundException {
+        AddressEntity addressEntity = addressDao.getAddressByUUID(addressId);
+        if (addressId.isEmpty()) {
+            throw new AddressNotFoundException("ANF-005", "Address id can not be empty");
+        }
+        if (addressEntity == null) {
+            throw new AddressNotFoundException("ANF-003", "No address by this id");
+        }
+        CustomerAddressEntity customerAddressEntity = customerAddressDao.customerAddressByAddress(addressEntity);
+        if (!customerAddressEntity.getCustomer().getUuid().equals(customerEntity.getUuid())) {
+            throw new AuthorizationFailedException(
+                    "ATHR-004", "You are not authorized to view/update/delete any one else's address");
+        }
+        return addressEntity;
+    }
+
     private boolean isPinCodeValid(final String pincode) {
         if (pincode.length() != 6)
             return false;
 
         if (!StringUtils.isNumeric(pincode))
             return false;
-        
+
         return true;
     }
 }
