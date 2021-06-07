@@ -21,16 +21,18 @@ public class CategoryService {
     private CommonValidation commonValidation;
 
     /**
-     * Get  all categories
-     *
+     * Fetch All Category Entity List
+     * @return List<CategoryEntity>
      */
     public List<CategoryEntity> getAllCategoriesOrderedByName() {
         return categoryDao.getAllCategoriesOrderedByName();
     }
 
     /**
-     * fetch  category details based on category uuid
-     *
+     * Fetch Category by CategoryID
+     * @param categoryUuid
+     * @return: CategoryEntity
+     * @throws CategoryNotFoundException
      */
     public CategoryEntity getCategoryById(final String categoryUuid) throws CategoryNotFoundException {
         if (commonValidation.isEmptyFieldValue(categoryUuid)) {
@@ -46,7 +48,9 @@ public class CategoryService {
     }
 
     /**
-     * fetch  List of Category Entities using restaurant uuid
+     * Fetch Categories by the Restaurant ID
+     * @param restaurantUuid
+     * @return: Categories of that Restuarant
      */
 
     public List<CategoryEntity> getCategoriesByRestaurant(final String restaurantUuid) {
