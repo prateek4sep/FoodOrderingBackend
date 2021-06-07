@@ -13,6 +13,13 @@ public class CommonValidation {
 
     @Autowired
     private CustomerDao customerDao;
+
+    /**
+     * Validate the access token provided and returns the corresponding CustomerAuthEntity.
+     * @param accessToken
+     * @return
+     * @throws AuthorizationFailedException
+     */
     public CustomerAuthEntity validateCustomerAuthEntity(final String accessToken) throws AuthorizationFailedException {
         CustomerAuthEntity authEntity = customerDao.getCustomerByAccessToken(accessToken);
 
@@ -32,7 +39,27 @@ public class CommonValidation {
         return authEntity;
     }
 
+    /**
+     * Fetch access token from bearer token
+     * @param bearerToken
+     * @return
+     * @throws AuthorizationFailedException
+     */
+    public String getAccessTokenFromBearer(String bearerToken) throws AuthorizationFailedException {
+        String accessToken;
+        try {
+            accessToken = bearerToken.split("Bearer ")[1];
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+        }
+        return accessToken;
+    }
 
+    /**
+     * This method validates if a field is empty or not.
+     * @param fieldValue
+     * @return
+     */
     public boolean isEmptyFieldValue(final String fieldValue) {
         return fieldValue == null || fieldValue.isEmpty();
     }

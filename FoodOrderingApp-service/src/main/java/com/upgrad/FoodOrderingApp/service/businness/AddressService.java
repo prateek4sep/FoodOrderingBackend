@@ -32,6 +32,15 @@ public class AddressService {
     @Autowired
     private OrderDao orderDao;
 
+    /**
+     * Save Address for a given customer.
+     * This methods checks for a valid address and creates a mapping of a customer and corresponding address.
+     *
+     * @param addressEntity
+     * @param customerEntity
+     * @return
+     * @throws SaveAddressException
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public AddressEntity saveAddress(final AddressEntity addressEntity, final CustomerEntity customerEntity) throws SaveAddressException {
         if (addressEntity.getActive() == null
@@ -56,6 +65,12 @@ public class AddressService {
         return createdCustomerAddress;
     }
 
+    /**
+     * Get all the addresses for a particular customer.
+     *
+     * @param customerEntity
+     * @return list of all addresses
+     */
     public List<AddressEntity> getAllAddress(final CustomerEntity customerEntity) {
         List<AddressEntity> addressEntityList = new ArrayList<>();
         List<CustomerAddressEntity> customerAddressEntityList = addressDao.customerAddressByCustomer(customerEntity);
@@ -66,6 +81,12 @@ public class AddressService {
         return addressEntityList;
     }
 
+    /**
+     * This method takes an address entity as input and deletes it.
+     *
+     * @param addressEntity
+     * @return
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public AddressEntity deleteAddress(final AddressEntity addressEntity) {
         final List<OrderEntity> orders = orderDao.getAllOrdersByAddress(addressEntity);
@@ -76,10 +97,20 @@ public class AddressService {
         return addressDao.updateAddress(addressEntity);
     }
 
+    /**
+     * This method returns a list of all the states in the database.
+     * @return
+     */
     public List<StateEntity> getAllStates() {
         return stateDao.getAllStates();
     }
 
+    /**
+     * This method returns the state corresponding to the provided UUID.
+     * @param stateUuid
+     * @return
+     * @throws AddressNotFoundException
+     */
     public StateEntity getStateByUUID(final String stateUuid) throws AddressNotFoundException {
         if (stateDao.getStateByUUID(stateUuid) == null) {
             throw new AddressNotFoundException("ANF-002", "No state by this id");
@@ -87,6 +118,14 @@ public class AddressService {
         return stateDao.getStateByUUID(stateUuid);
     }
 
+    /**
+     * This method returns the address corresponding to the provided UUID.
+     * @param addressId
+     * @param customerEntity
+     * @return
+     * @throws AuthorizationFailedException
+     * @throws AddressNotFoundException
+     */
     public AddressEntity getAddressByUUID(final String addressId, final CustomerEntity customerEntity)
             throws AuthorizationFailedException, AddressNotFoundException {
         AddressEntity addressEntity = addressDao.getAddressByUUID(addressId);
@@ -104,6 +143,11 @@ public class AddressService {
         return addressEntity;
     }
 
+    /**
+     * This method validates the format of the provided pincode.
+     * @param pincode
+     * @return
+     */
     private boolean isPinCodeValid(final String pincode) {
         if (pincode.length() != 6)
             return false;
