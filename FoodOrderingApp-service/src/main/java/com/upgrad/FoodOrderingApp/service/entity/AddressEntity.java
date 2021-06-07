@@ -12,6 +12,11 @@ import java.io.Serializable;
 import java.util.List;
 @Entity
 @Table(name = "address")
+@NamedQueries({
+        @NamedQuery(
+                name = "addressByUUID",
+                query = "select a from AddressEntity a where a.uuid=:addressUUID")
+})
 public class AddressEntity implements Serializable {
 
     @Id
@@ -52,6 +57,8 @@ public class AddressEntity implements Serializable {
             joinColumns = @JoinColumn(name = "ADDRESS_ID"),
             inverseJoinColumns = @JoinColumn(name = "CUSTOMER_ID"))
     private List<CustomerEntity> customers;
+
+    public AddressEntity() {}
 
     public AddressEntity(@NotNull String uuid, String flatBuilNo, String locality, String city, String pincode, StateEntity state) {
         this.uuid = uuid;
