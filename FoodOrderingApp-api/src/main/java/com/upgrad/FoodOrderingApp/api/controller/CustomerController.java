@@ -2,6 +2,7 @@ package com.upgrad.FoodOrderingApp.api.controller;
 
 import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
+import com.upgrad.FoodOrderingApp.service.common.CommonValidation;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
@@ -19,18 +20,20 @@ import java.util.Base64;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/")
 @CrossOrigin
 public class CustomerController {
 
-    @Autowired private CustomerService customerService;
+    @Autowired
+    private CustomerService customerService;
+
+    private CommonValidation commonValidation = new CommonValidation();
 
     /**
      * Method for signing up a new user.
      * An object of 'SignupUserRequest' is received as an argument with corresponding fields.
      *
      * @return SignupUserResponse - UUID of the new user created.
-     * @throws SignUpRestrictedException - Thrown if the username of email already exists in the DB.
+     * @throws SignUpRestrictedException
      */
     @RequestMapping(
             method = RequestMethod.POST,
@@ -54,8 +57,7 @@ public class CustomerController {
      *
      * @param authorization "Basic <Base 64 Encoded username:password>"
      * @return SigninResponse containing user id and a access-token.
-     * @throws AuthenticationFailedException Throws the error code ATH-001 if username doesn't exist,
-     * ATH-002 in case of incorrect password
+     * @throws AuthenticationFailedException
      */
     @RequestMapping(
             method = RequestMethod.POST,
@@ -78,12 +80,16 @@ public class CustomerController {
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setId(customerAuthEntity.getCustomer().getUuid());
         loginResponse.setMessage("LOGGED IN SUCCESSFULLY");
+        loginResponse.setFirstName(customerAuthEntity.getCustomer().getFirstName());
+        loginResponse.setLastName(customerAuthEntity.getCustomer().getFirstName());
+        loginResponse.setEmailAddress(customerAuthEntity.getCustomer().getEmail());
+        loginResponse.setContactNumber(customerAuthEntity.getCustomer().getContactNumber());
 
         return new ResponseEntity<>(loginResponse, headers, HttpStatus.OK);
     }
 
     /**
-     * This method takes an bearerToken to validate and updates the user .
+     * This method takes an bearerToken to validate and updates the user name.
      *
      * @param bearerToken Token used for authenticating the user.
      * @return UUID, First and Last Name of the user.
@@ -101,13 +107,10 @@ public class CustomerController {
             throw new UpdateCustomerException("UCR-002","First name field should not be empty");
         }
 
-        String accessToken;
-        try {
-            accessToken = bearerToken.split("Bearer ")[1];
-        } catch (ArrayIndexOutOfBoundsException e){
-            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
-        }
+        // Extracting the access Token from bearer token.
+        String accessToken = commonValidation.getAccessTokenFromBearer(bearerToken);
 
+        // Get the customer from the access token and set the name from request.
         CustomerEntity customerEntity = customerService.getCustomer(accessToken);
         customerEntity.setFirstName(updateCustomerRequest.getFirstName());
         customerEntity.setLastName(updateCustomerRequest.getLastName());
@@ -123,6 +126,15 @@ public class CustomerController {
         return new ResponseEntity<>(updateCustomerResponse, HttpStatus.OK);
     }
 
+    /**
+     * Change user password after validating the access token.
+     *
+     * @param bearerToken
+     * @param updatePasswordRequest
+     * @return ID of the update user
+     * @throws UpdateCustomerException
+     * @throws AuthorizationFailedException
+     */
     @RequestMapping(
             method = RequestMethod.PUT,
             path = "/customer/password",
@@ -139,12 +151,9 @@ public class CustomerController {
             throw new UpdateCustomerException("UCR-003", "No field should be empty");
         }
 
-        String accessToken;
-        try {
-            accessToken = bearerToken.split("Bearer ")[1];
-        } catch (ArrayIndexOutOfBoundsException e){
-            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
-        }
+        // Extracting the access Token from bearer token.
+        String accessToken = commonValidation.getAccessTokenFromBearer(bearerToken);
+
         CustomerEntity customerEntity = customerService.getCustomer(accessToken);
 
         CustomerEntity updatedCustomerEntity = customerService.updateCustomerPassword(oldPassword, newPassword, customerEntity);
@@ -158,9 +167,9 @@ public class CustomerController {
     /**
      * This method takes an bearerToken to validate and sign the user out.
      *
-     * @param bearerToken Token used for authenticating the user.
-     * @return UUID of the user who is signed out.
-     * @throws AuthorizationFailedException if the bearerToken is invalid.
+     * @param bearerToken
+     * @return UUID of the user
+     * @throws AuthorizationFailedException
      */
     @RequestMapping(
             method = RequestMethod.POST,
@@ -179,7 +188,7 @@ public class CustomerController {
      * This method take the Sign up user request and creates a user entity.
      *
      * @param signupUserRequest
-     * @return
+     * @return CustomerEntity
      */
     public CustomerEntity createNewUserEntity(SignupCustomerRequest signupUserRequest){
         CustomerEntity customerEntity = new CustomerEntity();

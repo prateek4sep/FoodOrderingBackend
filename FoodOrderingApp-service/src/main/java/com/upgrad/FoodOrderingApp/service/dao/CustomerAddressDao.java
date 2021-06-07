@@ -23,6 +23,11 @@ public class CustomerAddressDao {
         entityManager.persist(customerAddressEntity);
     }
 
+    /**
+     * Get all addresses associated using the provided address.
+     * @param address
+     * @return
+     */
     public CustomerAddressEntity customerAddressByAddress(final AddressEntity address) {
         try {
             return entityManager.createNamedQuery("customerAddressByAddress", CustomerAddressEntity.class)

@@ -14,6 +14,11 @@ public class ItemDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+    /**
+     * Fetch Item by Given ItemUuID
+     * @param itemUuid
+     * @return ItemEntity
+     */
     public ItemEntity getItemById(final String itemUuid) {
         try {
             return entityManager.createNamedQuery("itemById", ItemEntity.class)
@@ -24,14 +29,23 @@ public class ItemDao {
         }
     }
 
-
+    /**
+     * Fetch All Items by Popularity using given RestaurantUuID
+     * @param restaurantId
+     * @return List of ItemEntity
+     */
     public List<ItemEntity> getItemsByPopularity(final Integer restaurantId) {
         return entityManager.createNamedQuery("topFivePopularItemsByRestaurant", ItemEntity.class)
                 .setParameter(0, restaurantId)
                 .getResultList();
     }
 
-
+    /**
+     *Fetch List of ItemEntity using by RestaurantUuID and CategoryUuID
+     * @param restaurantUuid
+     * @param categoryUuid
+     * @return
+     */
     public List<ItemEntity> getItemsByCategoryAndRestaurant(final String restaurantUuid, final String categoryUuid) {
         return entityManager.createNamedQuery("itemsByCategoryByRestaurant", ItemEntity.class)
                 .setParameter("restaurantUuid", restaurantUuid)

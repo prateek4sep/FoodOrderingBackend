@@ -2,14 +2,11 @@ package com.upgrad.FoodOrderingApp.service.dao;
 
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
-import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.time.ZonedDateTime;
 
 /**
  * CustomerDao class provides the database access for all the endpoints in user controller.
@@ -17,12 +14,14 @@ import java.time.ZonedDateTime;
 @Repository
 public class CustomerDao {
 
-    //When a container of the application(be it a Java EE container or any other custom container like Spring) manages the lifecycle of the Entity Manager, the Entity Manager is said to be Container Managed. The most common way of acquiring a Container Managed EntityManager is to use @PersistenceContext annotation on an EntityManager attribute.
     @PersistenceContext
     private EntityManager entityManager;
 
-
-
+    /**
+     * Get Customer Entity for the contact number provided.
+     * @param contactNumber
+     * @return
+     */
     public CustomerEntity getCustomerByContactNumber(String contactNumber) {
         try {
             return entityManager.createNamedQuery("customerByContactNumber" , CustomerEntity.class).setParameter("contactNumber" , contactNumber).getSingleResult();
@@ -31,14 +30,11 @@ public class CustomerDao {
         }
     }
 
-    public CustomerEntity getUserByEmail(String username) {
-        try {
-            return entityManager.createNamedQuery("customerByEmail" , CustomerEntity.class).setParameter("email" , username).getSingleResult();
-        } catch (NoResultException nre) {
-            return null;
-        }
-    }
-
+    /**
+     * Get Customer Auth Entity corresponding to the access token provided.
+     * @param accessToken
+     * @return
+     */
     public CustomerAuthEntity getCustomerByAccessToken(String accessToken) {
         try {
             return entityManager.createNamedQuery("customerByAccessToken" , CustomerAuthEntity.class).setParameter("accessToken", accessToken).getSingleResult();
@@ -47,31 +43,33 @@ public class CustomerDao {
         }
     }
 
-    public CustomerAuthEntity createCustomerAuth(CustomerAuthEntity userAuthEntity) {
-        entityManager.persist(userAuthEntity);
-        return userAuthEntity;
-    }
-
+    /**
+     * Updates the Customer Auth Entity in DB.
+     * @param customerAuthEntity
+     * @return
+     */
     public CustomerAuthEntity updateCustomerAuth(CustomerAuthEntity customerAuthEntity) {
         entityManager.merge(customerAuthEntity);
         return customerAuthEntity;
     }
 
+    /**
+     * Updates the Customer Entity in DB.
+     * @param customerEntity
+     * @return
+     */
     public CustomerEntity updateCustomer(CustomerEntity customerEntity) {
         entityManager.merge(customerEntity);
         return customerEntity;
     }
 
+    /**
+     * Persists the Customer Entity in DB.
+     * @param customerEntity
+     * @return
+     */
     public CustomerEntity createCustomer(CustomerEntity customerEntity) {
         entityManager.persist(customerEntity);
         return customerEntity;
-    }
-
-    public CustomerEntity getCustomerByUUID(String UUID) {
-        try {
-            return entityManager.createNamedQuery("getCustomerByUUID" , CustomerEntity.class).setParameter("uuid" , UUID).getSingleResult();
-        } catch (NoResultException nre) {
-            return null;
-        }
     }
 }

@@ -21,14 +21,14 @@ import java.util.Collections;
 import java.util.UUID;
 
 import static com.upgrad.FoodOrderingApp.service.common.ItemType.NON_VEG;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.junit.Assert.assertEquals;
 
-// This class contains all the test cases regarding the category controller
+ //This class contains all the test cases regarding the category controller
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -74,7 +74,7 @@ public class CategoryControllerTest {
     }
 
     //This test case passes when you have handled the exception of trying to fetch any category but your category id
-    // field is empty.
+     //field is empty.
     @Test
     public void shouldNotGetCategoryByidIfCategoryIdIsEmpty() throws Exception {
         when(mockCategoryService.getCategoryById(anyString()))
@@ -88,7 +88,7 @@ public class CategoryControllerTest {
     }
 
     //This test case passes when you have handled the exception of trying to fetch any category by its id, while there
-    // is not category by that id in the database
+     //is not category by that id in the database
     @Test
     public void shouldNotGetCategoryByIdIfCategoryDoesNotExistAgainstGivenId() throws Exception {
         when(mockCategoryService.getCategoryById("someCategory"))
