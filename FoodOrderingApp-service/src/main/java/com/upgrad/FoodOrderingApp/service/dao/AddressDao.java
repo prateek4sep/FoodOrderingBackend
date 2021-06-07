@@ -6,6 +6,7 @@ import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +44,38 @@ public class AddressDao {
             return Collections.emptyList();
         }
         return addresses;
+    }
+
+    /**
+     * Fetch the address from Database based on address UUID.
+     *
+     * @param addressUUID
+     * @return AddressEntity
+     */
+    public AddressEntity getAddressByUUID(final String addressUUID) {
+        try {
+            return entityManager
+                    .createNamedQuery("addressByUUID", AddressEntity.class)
+                    .setParameter("addressUUID", addressUUID)
+                    .getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    /**
+     * Deletes the given address.
+     *
+     * @param addressEntity
+     * @return AddressEntity
+     */
+    public AddressEntity deleteAddress(final AddressEntity addressEntity) {
+        entityManager.remove(addressEntity);
+        return addressEntity;
+    }
+
+    public AddressEntity updateAddress(final AddressEntity addressEntity) {
+        return entityManager.merge(addressEntity);
     }
 
 }

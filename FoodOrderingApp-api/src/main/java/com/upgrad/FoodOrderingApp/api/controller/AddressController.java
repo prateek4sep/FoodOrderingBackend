@@ -139,4 +139,30 @@ public class AddressController {
         }
         return new ResponseEntity<>(statesListResponse, HttpStatus.OK);
     }
+
+    @RequestMapping(
+            path = "/address/{address_id}",
+            method = RequestMethod.DELETE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DeleteAddressResponse> deleteAddress(
+            @RequestHeader("authorization") final String bearerToken,
+            @PathVariable("address_id") final String addressId)
+            throws AuthorizationFailedException, AddressNotFoundException {
+        String accessToken;
+        try {
+            accessToken = bearerToken.split("Bearer ")[1];
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+        }
+        final CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+        AddressEntity addressEntity = addressService.getAddressByUUID(addressId, customerEntity);
+        final AddressEntity deletedAddressEntity = new AddressEntity();
+        deletedAddressEntity.setUuid(UUID.randomUUID().toString());
+        final AddressEntity deleteAddress = addressService.deleteAddress(addressEntity);
+        final DeleteAddressResponse deleteAddressResponse =
+                new DeleteAddressResponse()
+                        .id(UUID.fromString(deleteAddress.getUuid()))
+                        .status("ADDRESS DELETED SUCCESSFULLY");
+        return new ResponseEntity<DeleteAddressResponse>(deleteAddressResponse, HttpStatus.OK);
+    }
 }
