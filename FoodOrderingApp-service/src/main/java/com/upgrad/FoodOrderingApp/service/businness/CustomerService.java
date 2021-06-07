@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.Base64;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -124,7 +123,7 @@ public class CustomerService {
      * @param authorization : required for validation and sign out
      * @throws AuthorizationFailedException : Thrown if the access-token is not found in the DB.
      * @return CustomerEntity : Signed out user.
-//     */
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public CustomerAuthEntity logout(final String authorization) throws AuthorizationFailedException {
         CustomerAuthEntity customerAuthEntity = userDao.getCustomerByAccessToken(authorization);
@@ -135,12 +134,28 @@ public class CustomerService {
         return customerAuthEntity;
     }
 
+    /**
+     * Update the customer with updated name.
+     *
+     * @param customerEntity with new First Name and Last Name
+     * @return updated customer entity
+     * @throws UpdateCustomerException
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public CustomerEntity updateCustomer(final CustomerEntity customerEntity) throws UpdateCustomerException {
         userDao.updateCustomer(customerEntity);
         return customerEntity;
     }
 
+    /**
+     * Update customer password and save to Database.
+     *
+     * @param oldPassword
+     * @param newPassword
+     * @param customerEntity
+     * @return
+     * @throws UpdateCustomerException
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public CustomerEntity updateCustomerPassword(
             final String oldPassword, final String newPassword, final CustomerEntity customerEntity)
@@ -157,29 +172,6 @@ public class CustomerService {
         customerEntity.setSalt(encryptedText[0]);
         customerEntity.setPassword(encryptedText[1]);
         return userDao.updateCustomer(customerEntity);
-    }
-
-    public void validateAccessToken(final String authorization) throws AuthorizationFailedException{
-        CustomerAuthEntity customerAuthEntity = userDao.getCustomerByAccessToken(authorization);
-
-        if (customerAuthEntity == null) {
-            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
-        }
-
-        ZonedDateTime expireTime = customerAuthEntity.getExpiresAt();
-        ZonedDateTime currentTime = ZonedDateTime.now();
-
-        if (expireTime.isBefore(currentTime)) {
-            throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
-        }
-
-
-        ZonedDateTime logoutAtTime = customerAuthEntity.getLogoutAt();
-        if (logoutAtTime != null) {
-            throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
-
-        }
-
     }
 
     /**
@@ -253,6 +245,13 @@ public class CustomerService {
         else return false;
     }
 
+    /**
+     * Get customer entity using the access token.
+     *
+     * @param accessToken
+     * @return
+     * @throws AuthorizationFailedException
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public CustomerEntity getCustomer(final String accessToken) throws AuthorizationFailedException {
         final CustomerAuthEntity authEntity = commonValidation.validateCustomerAuthEntity(accessToken);

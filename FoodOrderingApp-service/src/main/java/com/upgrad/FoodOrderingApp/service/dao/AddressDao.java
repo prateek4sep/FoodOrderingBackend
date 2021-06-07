@@ -64,7 +64,7 @@ public class AddressDao {
     }
 
     /**
-     * Deletes the given address.
+     * Deletes the given address from the database.
      *
      * @param addressEntity
      * @return AddressEntity
@@ -74,6 +74,12 @@ public class AddressDao {
         return addressEntity;
     }
 
+    /**
+     * Updates a given address in the database.
+     *
+     * @param addressEntity
+     * @return
+     */
     public AddressEntity updateAddress(final AddressEntity addressEntity) {
         return entityManager.merge(addressEntity);
     }
