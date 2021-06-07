@@ -1,6 +1,7 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
 
+import com.upgrad.FoodOrderingApp.api.model.PaymentListResponse;
 import com.upgrad.FoodOrderingApp.api.model.PaymentResponse;
 import com.upgrad.FoodOrderingApp.service.businness.PaymentService;
 import com.upgrad.FoodOrderingApp.service.entity.PaymentEntity;
@@ -23,7 +24,7 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @RequestMapping(path = "/payment",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<PaymentResponse>>getAllPayments(){
+    public ResponseEntity<PaymentListResponse>getAllPayments(){
         List<PaymentEntity>allPayments = paymentService.getAllPaymentMethods();
 
         List<PaymentResponse> allPaymentsResponse = new ArrayList<>();
@@ -35,7 +36,9 @@ public class PaymentController {
             allPaymentsResponse.add(paymentResponse);
         }
 
-        ResponseEntity<List<PaymentResponse>> response = new ResponseEntity<>(allPaymentsResponse, HttpStatus.OK);
+        PaymentListResponse paymentListResponse = new PaymentListResponse();
+        paymentListResponse.paymentMethods(allPaymentsResponse);
+        ResponseEntity<PaymentListResponse> response = new ResponseEntity<>(paymentListResponse, HttpStatus.OK);
 
         return response;
     }

@@ -14,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "orders")
-
+@NamedQuery(name = "getAllPastOrders",query = "SELECT o FROM OrderEntity o WHERE o.uuid = :uuid ORDER BY o.date DESC")
 public class OrderEntity implements Serializable {
 
     @Id
@@ -67,6 +67,9 @@ public class OrderEntity implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "ITEM_ID"))
     private List<ItemEntity> items;
 
+    @OneToMany
+    private List<OrderItemEntity>orderItemEntities;
+
     public Integer getId() {
         return id;
     }
@@ -109,6 +112,14 @@ public class OrderEntity implements Serializable {
 
     public Date getDate() {
         return date;
+    }
+
+    public List<OrderItemEntity> getOrderItemEntities() {
+        return orderItemEntities;
+    }
+
+    public void setOrderItemEntities(List<OrderItemEntity> orderItemEntities) {
+        this.orderItemEntities = orderItemEntities;
     }
 
     public void setDate(Date date) {
